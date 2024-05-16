@@ -9,6 +9,10 @@ import (
 	"net/http"
 )
 
+type SendZipcode interface {
+	Execute(zipcode *entity.ZipCode) (int, error)
+}
+
 type SendZipcodeUseCase struct {
 	URL string
 }

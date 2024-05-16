@@ -2,6 +2,10 @@ package usecase
 
 import "github.com/obrunogonzaga/open-telemetry/internal/weatherservice/domain/entity"
 
+type ValidateZipcode interface {
+	Execute(code string) (*entity.ZipCode, error)
+}
+
 type ValidateZipcodeUseCase struct{}
 
 func (uc *ValidateZipcodeUseCase) Execute(code string) (*entity.ZipCode, error) {
