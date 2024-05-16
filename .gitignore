@@ -1,0 +1,48 @@
+# Arquivos binários
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Teste de arquivos de saída
+*.test
+*.out
+
+# Dependências
+/vendor/
+
+# Arquivos de log
+*.log
+
+# Diretórios do sistema
+.DS_Store
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Diretório que contém arquivos compilados
+/bin/
+
+# Diretório que contém arquivos gerados durante a construção
+/obj/
+
+# Arquivos de backup
+*~
+*.swp
+*.swo
+
+# Arquivos do IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.ide/
+
+# Arquivos de cache do Go
+*.test
+*.prof
