@@ -20,24 +20,27 @@ func NewZipcodeController(v usecase.ValidateZipcode, s usecase.SendZipcode) *Zip
 
 func (c *ZipcodeController) Handle(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		CEP string `json:"cep"`
+		Zipcode string `json:"zipcode"`
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid request", http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	zipcode, err := c.validateZipcode.Execute(req.CEP)
+	zipcode, err := c.validateZipcode.Execute(req.Zipcode)
 	if err != nil {
 		http.Error(w, "invalid zipcode", http.StatusUnprocessableEntity)
 		return
 	}
 
-	status, err := c.sendZipcode.Execute(zipcode)
+	status, body, err := c.sendZipcode.Execute(zipcode)
 	if err != nil {
 		http.Error(w, err.Error(), status)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 }
