@@ -1,6 +1,8 @@
 package usecase
 
-import "github.com/obrunogonzaga/open-telemetry/internal/weatherservice/domain/entity"
+import (
+	"github.com/obrunogonzaga/open-telemetry/internal/zipcodeservice/domain/entity"
+)
 
 type ValidateZipcode interface {
 	Execute(code string) (*entity.ZipCode, error)

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/usecase"
+	"github.com/obrunogonzaga/open-telemetry/internal/zipcodeservice/usecase"
 	"net/http"
 )
 

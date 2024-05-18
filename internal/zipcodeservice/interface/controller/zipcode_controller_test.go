@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/obrunogonzaga/open-telemetry/internal/zipcodeservice/domain/entity"
+	"github.com/obrunogonzaga/open-telemetry/internal/zipcodeservice/interface/controller"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/domain/entity"
-	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/interface/controller"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -32,9 +32,9 @@ type MockSendZipcode struct {
 	mock.Mock
 }
 
-func (m *MockSendZipcode) Execute(zipcode *entity.ZipCode) (int, error) {
+func (m *MockSendZipcode) Execute(zipcode *entity.ZipCode) (int, []byte, error) {
 	args := m.Called(zipcode)
-	return args.Int(0), args.Error(1)
+	return args.Int(0), args.Get(1).([]byte), args.Error(2)
 }
 
 func TestHandle_ValidRequest(t *testing.T) {
@@ -43,11 +43,11 @@ func TestHandle_ValidRequest(t *testing.T) {
 
 	zipcode := &entity.ZipCode{Code: "12345"}
 	mockValidateZipcode.On("Execute", "12345").Return(zipcode, nil)
-	mockSendZipcode.On("Execute", zipcode).Return(http.StatusOK, nil)
+	mockSendZipcode.On("Execute", zipcode).Return(http.StatusOK, []byte{}, nil)
 
 	controller := controller.NewZipcodeController(mockValidateZipcode, mockSendZipcode)
 
-	reqBody := map[string]string{"cep": "12345"}
+	reqBody := map[string]string{"zipcode": "12345"}
 	jsonReqBody, _ := json.Marshal(reqBody)
 	req, _ := http.NewRequest(http.MethodPost, "/zipcode", bytes.NewBuffer(jsonReqBody))
 	rr := httptest.NewRecorder()
@@ -81,7 +81,7 @@ func TestHandle_InvalidZipcode(t *testing.T) {
 
 	controller := controller.NewZipcodeController(mockValidateZipcode, mockSendZipcode)
 
-	reqBody := map[string]string{"cep": "invalid"}
+	reqBody := map[string]string{"zipcode": "invalid"}
 	jsonReqBody, _ := json.Marshal(reqBody)
 	req, _ := http.NewRequest(http.MethodPost, "/zipcode", bytes.NewBuffer(jsonReqBody))
 	rr := httptest.NewRecorder()
@@ -98,11 +98,11 @@ func TestHandle_SendZipcodeError(t *testing.T) {
 
 	zipcode := &entity.ZipCode{Code: "12345"}
 	mockValidateZipcode.On("Execute", "12345").Return(zipcode, nil)
-	mockSendZipcode.On("Execute", zipcode).Return(http.StatusInternalServerError, errors.New("internal error"))
+	mockSendZipcode.On("Execute", zipcode).Return(http.StatusInternalServerError, []byte{}, errors.New("internal error"))
 
 	controller := controller.NewZipcodeController(mockValidateZipcode, mockSendZipcode)
 
-	reqBody := map[string]string{"cep": "12345"}
+	reqBody := map[string]string{"zipcode": "12345"}
 	jsonReqBody, _ := json.Marshal(reqBody)
 	req, _ := http.NewRequest(http.MethodPost, "/zipcode", bytes.NewBuffer(jsonReqBody))
 	rr := httptest.NewRecorder()

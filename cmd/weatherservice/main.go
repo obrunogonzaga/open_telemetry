@@ -1,20 +1,30 @@
 package main
 
 import (
-	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/interface/controller"
-	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/usecase"
-	"log"
+	"github.com/obrunogonzaga/open-telemetry/configs"
+	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/infra/web"
+	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/infra/web/webserver"
+	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/repository"
+	locatiionService "github.com/obrunogonzaga/open-telemetry/internal/weatherservice/service"
 	"net/http"
 )
 
 func main() {
-	var validateZipcodeUseCase usecase.ValidateZipcode = &usecase.ValidateZipcodeUseCase{}
-	var sendZipcodeUseCase usecase.SendZipcode = &usecase.SendZipcodeUseCase{URL: "https://cloudrun-goexpert-za5o6n5xla-uc.a.run.app/weather"}
+	config, err := configs.LoadConfig(".")
+	if err != nil {
+		panic(err)
+	}
 
-	zipcodeController := controller.NewZipcodeController(validateZipcodeUseCase, sendZipcodeUseCase)
+	client := &http.Client{}
+	locationRepo := repository.NewLocationRepository(client)
+	locationService := locatiionService.NewLocationService(locationRepo)
+	weather := repository.NewWeatherAPI(client)
+	handler := web.NewHandler(locationService, weather, config)
 
-	http.HandleFunc("/zipcode", zipcodeController.Handle)
+	//TODO: Implementar a injeção de dependência com o wire
+	restServer := webserver.NewWebServer(config.WebServerPort)
+	restServer.AddHandler("/weather", handler.Execute)
 
-	log.Println("Server running on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	restServer.Start()
+
 }

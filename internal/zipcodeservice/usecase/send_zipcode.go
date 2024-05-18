@@ -3,7 +3,7 @@ package usecase
 import (
 	"errors"
 	"fmt"
-	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/domain/entity"
+	"github.com/obrunogonzaga/open-telemetry/internal/zipcodeservice/domain/entity"
 	"io/ioutil"
 	"net/http"
 )

@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/domain/entity"
+	"github.com/obrunogonzaga/open-telemetry/internal/zipcodeservice/domain/entity"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,7 +16,7 @@ func TestSendZipcodeUseCase_Execute(t *testing.T) {
 
 		uc := &SendZipcodeUseCase{URL: server.URL}
 		zip := &entity.ZipCode{Code: "12345678"}
-		status, err := uc.Execute(zip)
+		status, _, err := uc.Execute(zip)
 		if err != nil {
 			t.Errorf("Expected no error, got %v", err)
 		}
@@ -34,7 +34,7 @@ func TestSendZipcodeUseCase_Execute(t *testing.T) {
 
 		uc := &SendZipcodeUseCase{URL: server.URL}
 		zip := &entity.ZipCode{Code: "12345678"}
-		status, err := uc.Execute(zip)
+		status, _, err := uc.Execute(zip)
 		if err == nil {
 			t.Errorf("Expected error, got nil")
 		}
