@@ -5,8 +5,10 @@ import (
 )
 
 type Config struct {
-	WebServerPort string `mapstructure:"WEB_SERVER_PORT"`
-	WeatherApiKey string `mapstructure:"WEATHER_API_KEY"`
+	WebServerPort     string `mapstructure:"WEB_SERVER_PORT"`
+	WeatherApiKey     string `mapstructure:"WEATHER_API_KEY"`
+	WeatherServiceURL string `mapstructure:"WEATHER_SERVICE_URL"`
+	ZipCodeServerPort string `mapstructure:"ZIPCODE_SERVER_PORT"`
 }
 
 // LoadConfig is a function to load the configuration from the .env file
