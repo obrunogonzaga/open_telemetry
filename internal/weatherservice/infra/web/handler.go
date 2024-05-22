@@ -8,6 +8,9 @@ import (
 	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/repository"
 	locationService "github.com/obrunogonzaga/open-telemetry/internal/weatherservice/service"
 	"github.com/obrunogonzaga/open-telemetry/internal/weatherservice/usecase"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 	"net/http"
 )
 
@@ -15,20 +18,27 @@ type Handler struct {
 	LocationService locationService.LocationService
 	WeatherService  repository.WeatherRepository
 	Config          *configs.Config
+	OTELTracer      trace.Tracer
 }
 
-func NewHandler(LocationService locationService.LocationService, WeatherService repository.WeatherRepository, Config *configs.Config) *Handler {
+func NewHandler(LocationService locationService.LocationService, WeatherService repository.WeatherRepository, Config *configs.Config, trace trace.Tracer) *Handler {
 	return &Handler{
 		LocationService: LocationService,
 		WeatherService:  WeatherService,
 		Config:          Config,
+		OTELTracer:      trace,
 	}
 }
 
 func (h *Handler) Execute(w http.ResponseWriter, r *http.Request) {
+	carrier := propagation.HeaderCarrier(r.Header)
+	ctx := r.Context()
+	ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
+
+	ctx, span := h.OTELTracer.Start(ctx, "weather-service")
+	defer span.End()
+
 	w.Header().Set("Content-Type", "application/json")
-	//ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
-	//defer cancel()
 
 	zipCodeDTO := usecase.Input{
 		CEP: r.URL.Query().Get("zipcode"),

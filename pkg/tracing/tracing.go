@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func initProvider(ctx context.Context, serviceName, collectorURL string) (func(context.Context) error, error) {
+func InitProvider(ctx context.Context, serviceName, collectorURL string) (func(context.Context) error, error) {
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
 			semconv.ServiceName(serviceName),

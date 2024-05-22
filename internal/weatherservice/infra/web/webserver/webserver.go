@@ -3,7 +3,9 @@ package webserver
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
+	"time"
 )
 
 type WebServer struct {
@@ -24,10 +26,25 @@ func (s *WebServer) AddHandler(path string, handler http.HandlerFunc) {
 	s.Handlers[path] = handler
 }
 
-func (s *WebServer) Start() {
+func (s *WebServer) Start() error {
+
+	// Middlewares
+	s.Router.Use(middleware.RequestID)
+	s.Router.Use(middleware.RealIP)
 	s.Router.Use(middleware.Logger)
+	s.Router.Use(middleware.Recoverer)
+	s.Router.Use(middleware.Timeout(60 * time.Second))
+
 	for path, handler := range s.Handlers {
 		s.Router.Handle(path, handler)
 	}
-	http.ListenAndServe(s.WebServerPort, s.Router)
+
+	// Register Prometheus metrics handler
+	s.Router.Handle("/metrics", promhttp.Handler())
+
+	err := http.ListenAndServe(s.WebServerPort, s.Router)
+	if err != nil {
+		return err
+	}
+	return nil
 }
