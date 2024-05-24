@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/obrunogonzaga/open-telemetry/internal/zipcodeservice/domain/entity"
@@ -9,17 +10,23 @@ import (
 )
 
 type SendZipcode interface {
-	Execute(zipcode *entity.ZipCode) (int, []byte, error)
+	Execute(ctx context.Context, zipcode *entity.ZipCode) (int, []byte, error)
 }
 
 type SendZipcodeUseCase struct {
 	URL string
 }
 
-func (uc *SendZipcodeUseCase) Execute(zipcode *entity.ZipCode) (int, []byte, error) {
+func (uc *SendZipcodeUseCase) Execute(ctx context.Context, zipcode *entity.ZipCode) (int, []byte, error) {
 	requestURL := fmt.Sprintf("%s?zipcode=%s", uc.URL, zipcode.Code)
+	req, err := http.NewRequestWithContext(ctx, "GET", requestURL, nil)
+	if err != nil {
+		return http.StatusInternalServerError, nil, err
+	}
 
-	resp, err := http.Get(requestURL)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return http.StatusInternalServerError, nil, err
 	}

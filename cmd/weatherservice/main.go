@@ -26,7 +26,7 @@ func main() {
 	defer cancel()
 	// Graceful shutdown - end
 
-	shutdown, err := tracing.InitProvider(ctx, "weather-service", "localhost:4317")
+	shutdown, err := tracing.InitProvider(ctx, "weather-service", os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"))
 	if err != nil {
 		log.Fatal(err)
 	}
