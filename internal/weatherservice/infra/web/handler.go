@@ -31,11 +31,11 @@ func NewHandler(LocationService locationService.LocationService, WeatherService 
 }
 
 func (h *Handler) Execute(w http.ResponseWriter, r *http.Request) {
-	carrier := propagation.HeaderCarrier(r.Header)
 	ctx := r.Context()
+	carrier := propagation.HeaderCarrier(r.Header)
 	ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
 
-	ctx, span := h.OTELTracer.Start(ctx, "weather-service")
+	_, span := h.OTELTracer.Start(ctx, "weather-service")
 	defer span.End()
 
 	w.Header().Set("Content-Type", "application/json")
@@ -45,7 +45,7 @@ func (h *Handler) Execute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	findLocation := usecase.NewFindLocationUseCase(h.LocationService)
-	output, err := findLocation.Execute(r.Context(), zipCodeDTO)
+	output, err := findLocation.Execute(ctx, zipCodeDTO)
 	if err != nil {
 		if errors.Is(err, customErrors.ErrInvalidCEP) {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
@@ -60,7 +60,7 @@ func (h *Handler) Execute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	weatherUseCase := usecase.NewCalculateWeatherUseCase(h.WeatherService, h.Config)
-	weatherOutput, err := weatherUseCase.Execute(r.Context(), usecase.CalculateWeatherInput{City: output.City})
+	weatherOutput, err := weatherUseCase.Execute(ctx, usecase.CalculateWeatherInput{City: output.City})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -6,7 +6,6 @@ import (
 	"github.com/obrunogonzaga/open-telemetry/internal/zipcodeservice/interface/controller"
 	"github.com/obrunogonzaga/open-telemetry/internal/zipcodeservice/usecase"
 	"github.com/obrunogonzaga/open-telemetry/pkg/tracing"
-	"go.opentelemetry.io/otel"
 	"log"
 	"net/http"
 	"os"
@@ -34,7 +33,6 @@ func main() {
 		}
 	}()
 
-	tracer := otel.Tracer("zipcode-service")
 	config, err := configs.LoadConfig(".")
 	if err != nil {
 		panic(err)
@@ -42,7 +40,7 @@ func main() {
 
 	var validateZipcodeUseCase usecase.ValidateZipcode = &usecase.ValidateZipcodeUseCase{}
 	var sendZipcodeUseCase usecase.SendZipcode = &usecase.SendZipcodeUseCase{URL: config.WeatherServiceURL}
-	zipcodeController := controller.NewZipcodeController(validateZipcodeUseCase, sendZipcodeUseCase, tracer)
+	zipcodeController := controller.NewZipcodeController(validateZipcodeUseCase, sendZipcodeUseCase)
 
 	http.HandleFunc("/zipcode", zipcodeController.Handle)
 	log.Printf("Server running on port %s", config.ZipCodeServerPort)

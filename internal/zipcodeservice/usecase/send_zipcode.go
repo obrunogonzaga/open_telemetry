@@ -19,6 +19,7 @@ type SendZipcodeUseCase struct {
 
 func (uc *SendZipcodeUseCase) Execute(ctx context.Context, zipcode *entity.ZipCode) (int, []byte, error) {
 	requestURL := fmt.Sprintf("%s?zipcode=%s", uc.URL, zipcode.Code)
+
 	req, err := http.NewRequestWithContext(ctx, "GET", requestURL, nil)
 	if err != nil {
 		return http.StatusInternalServerError, nil, err
