@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/obrunogonzaga/open-telemetry/internal/zipcodeservice/domain/entity"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	"io/ioutil"
 	"net/http"
 )
@@ -27,6 +29,7 @@ func (uc *SendZipcodeUseCase) Execute(ctx context.Context, zipcode *entity.ZipCo
 
 	req.Header.Set("Content-Type", "application/json")
 
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return http.StatusInternalServerError, nil, err

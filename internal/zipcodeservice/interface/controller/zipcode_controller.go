@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/obrunogonzaga/open-telemetry/internal/zipcodeservice/usecase"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
 	"net/http"
 )
 
@@ -33,8 +32,6 @@ func (c *ZipcodeController) Handle(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
-
-	otel.GetTextMapPropagator().Inject(r.Context(), propagation.HeaderCarrier(r.Header))
 
 	zipcode, err := c.validateZipcode.Execute(req.Zipcode)
 	if err != nil {
