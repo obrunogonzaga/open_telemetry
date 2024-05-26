@@ -33,6 +33,12 @@ services:
       - ./.docker/otel-collector-config.yml:/etc/otel-collector-config.yml
     depends_on:
       - jaeger
+      - zipkin
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9411:9411"
 
   zipcode-service:
     build:
