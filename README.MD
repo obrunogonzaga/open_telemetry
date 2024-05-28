@@ -75,7 +75,10 @@ docker-compose up
 Você pode usar ferramentas como curl, Postman ou qualquer cliente HTTP para enviar requisições aos endpoints do ZipCodeService e WeatherService.
 
 ```bash
-curl -X GET http://localhost:8080/zipcode?zipcode=12345
+curl -X POST http://localhost:8080/zipcode \
+  -H "Host: localhost:8000" \
+  -H "Content-Type: application/json" \
+  -d '{"zipcode":"80320310"}'
 ```
 
 ## Visualização do Tracing
@@ -93,3 +96,6 @@ Os spans devem mostrar a sequência de chamadas entre os serviços ZipCodeServic
 - configs/config.go: Configuração dos serviços.
 - repository: Implementações dos repositórios para integração com APIs externas.
 - webserver/webserver.go: Configuração do servidor HTTP.
+
+
+![img.png](img.png)

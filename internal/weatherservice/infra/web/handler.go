@@ -35,8 +35,7 @@ func (h *Handler) Execute(w http.ResponseWriter, r *http.Request) {
 	carrier := propagation.HeaderCarrier(r.Header)
 	ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
 
-	_, span := h.OTELTracer.Start(ctx, "weather-service")
-	defer span.End()
+	_, spanLocation := h.OTELTracer.Start(ctx, "weather-service-get-location")
 
 	w.Header().Set("Content-Type", "application/json")
 
@@ -58,7 +57,9 @@ func (h *Handler) Execute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	spanLocation.End()
 
+	_, spanWeather := h.OTELTracer.Start(ctx, "weather-service-get-weathers")
 	weatherUseCase := usecase.NewCalculateWeatherUseCase(h.WeatherService, h.Config)
 	weatherOutput, err := weatherUseCase.Execute(ctx, usecase.CalculateWeatherInput{City: output.City})
 	if err != nil {
@@ -71,6 +72,7 @@ func (h *Handler) Execute(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	spanWeather.End()
 
 	w.WriteHeader(http.StatusOK)
 }
