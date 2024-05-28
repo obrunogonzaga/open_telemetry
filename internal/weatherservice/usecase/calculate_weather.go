@@ -7,10 +7,11 @@ import (
 )
 
 type CalculateWeatherInput struct {
-	City string `json:"city"`
+	City 		string `json:"city"`
 }
 
 type CalculateWeatherOutput struct {
+	City	   string  `json:"city"`
 	Celsius    float64 `json:"temp_C"`
 	Fahrenheit float64 `json:"temp_F"`
 	Kelvin     float64 `json:"temp_K"`
@@ -35,6 +36,7 @@ func (c *CalculateWeatherUseCase) Execute(ctx context.Context, input CalculateWe
 	}
 
 	return CalculateWeatherOutput{
+		City:       input.City,
 		Celsius:    weather.Celsius,
 		Fahrenheit: weather.Fahrenheit,
 		Kelvin:     weather.Kelvin,
